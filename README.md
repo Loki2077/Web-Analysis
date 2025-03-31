@@ -15,7 +15,8 @@
 
 - Next.js - React框架
 - Vercel - 部署和托管
-- Vercel KV - 数据存储
+- Vercel Blob - 主要数据存储（推荐）
+- Vercel KV - 可选数据存储
 - TailwindCSS - 样式
 - Chart.js - 数据可视化
 
@@ -23,7 +24,7 @@
 
 1. Fork本仓库
 2. 部署到Vercel
-3. 设置Vercel KV存储
+3. 设置Vercel Blob存储（推荐）或Vercel KV存储
 4. 将跟踪脚本添加到您的网站
 5. 访问您的分析仪表盘
 

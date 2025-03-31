@@ -26,19 +26,85 @@ git push origin main
    - 项目名称：输入一个有效的项目名称，如"web-analysis"
 5. 点击"Deploy"按钮开始部署
 
-### 3. 配置Vercel KV存储
+### 3. 配置存储服务
 
-项目使用Vercel KV存储分析数据，需要进行以下配置：
+项目支持两种Vercel存储服务：Vercel KV和Vercel Blob。你可以选择其中一种或同时配置两种存储服务。
+
+#### 3.1 配置Vercel Blob存储（推荐）
+
+Vercel Blob存储是一种对象存储服务，特别适合存储大量分析数据。请按照以下步骤配置：
 
 1. 在Vercel控制台中，选择你的项目
-2. 点击"Storage"选项卡
-3. 选择"Create"并选择"KV Database"
-4. 按照向导完成创建
-5. 创建完成后，Vercel会自动添加必要的环境变量到你的项目中，包括：
-   - `KV_URL`
-   - `KV_REST_API_URL`
-   - `KV_REST_API_TOKEN`
-   - `KV_REST_API_READ_ONLY_TOKEN`
+2. 点击左侧导航栏中的"Storage"选项
+3. 在Storage页面中，点击"Connect Database"按钮
+4. 在Marketplace数据库提供商列表中，找到并选择"Vercel Blob"
+5. 你将被重定向到Vercel Marketplace，在这里可以查看Blob服务的详细信息和定价
+6. 点击"Add Integration"按钮
+7. 选择要连接Blob存储的项目（确保选择你刚才部署的Web-Analysis项目）
+8. 选择适合你的定价方案（Hobby方案对于个人使用通常足够）
+9. 点击"Create"按钮创建Blob存储实例
+10. 创建完成后，Vercel会自动将必要的环境变量添加到你的项目中，包括：
+    - `BLOB_READ_WRITE_TOKEN`
+
+#### Blob存储使用限制和最佳实践
+
+- **Hobby方案限制**：
+  - 存储空间：5GB
+  - 每月带宽：50GB
+  - 每秒请求数：无限制
+  - 最大文件大小：500MB
+- **最佳实践**：
+  - 适合存储大型分析数据和报告
+  - 使用有意义的前缀组织数据
+  - 对于频繁访问的数据，考虑实现客户端缓存
+  - 定期清理不再需要的分析数据
+  - 利用Blob的公共/私有访问控制保护敏感数据
+
+#### 验证Blob配置
+
+部署完成后，你可以通过以下步骤验证Blob存储是否正确配置：
+
+1. 在Vercel控制台中，选择你的项目
+2. 点击"Settings"选项卡，然后选择"Environment Variables"
+3. 确认所有Blob相关的环境变量都已正确设置
+4. 访问你的Web-Analysis应用，尝试记录一些分析数据
+5. 在Vercel控制台中，点击"Storage"，然后选择你的Blob实例
+6. 在Blob控制台中，你应该能够看到存储的分析数据
+
+#### 3.2 配置Vercel KV存储（可选）
+
+如果你希望同时使用KV存储或仅使用KV存储，请按照以下步骤配置：
+
+1. 在Vercel控制台中，选择你的项目
+2. 点击左侧导航栏中的"Storage"选项
+3. 在Storage页面中，点击"Connect Database"按钮
+4. 在Marketplace数据库提供商列表中，找到并选择"Vercel KV"
+5. 你将被重定向到Vercel Marketplace，在这里可以查看KV服务的详细信息和定价
+6. 点击"Add Integration"按钮
+7. 选择要连接KV存储的项目（确保选择你刚才部署的Web-Analysis项目）
+8. 选择适合你的定价方案（Hobby方案对于个人使用通常足够）
+9. 点击"Create"按钮创建KV数据库实例
+10. 创建完成后，Vercel会自动将必要的环境变量添加到你的项目中，包括：
+    - `KV_URL`
+    - `KV_REST_API_URL`
+    - `KV_REST_API_TOKEN`
+    - `KV_REST_API_READ_ONLY_TOKEN`
+
+#### KV存储使用限制和最佳实践
+
+- **Hobby方案限制**：
+  - 存储空间：256MB
+  - 每月带宽：1GB
+  - 每秒请求数：10
+  - 最大键值大小：100KB
+  - 最大数据库大小：256MB
+- **最佳实践**：
+  - 避免存储大型数据对象
+  - 合理设计键名，使用前缀区分不同类型的数据
+  - 对于频繁访问的数据，考虑实现客户端缓存
+  - 定期清理不再需要的分析数据，以避免达到存储限制
+  - 使用批量操作减少API调用次数
+  - 考虑数据过期策略，设置适当的TTL（生存时间）
 
 ### 4. 配置其他环境变量
 
@@ -81,7 +147,9 @@ vercel --name web-analysis
 
 ### 4. 配置Vercel KV存储
 
-与方法一中的步骤3和4相同，需要在Vercel控制台中配置KV存储和环境变量。
+与方法一中的步骤3相同，需要在Vercel控制台中通过Marketplace配置KV存储和环境变量。按照方法一中详细描述的步骤操作，确保KV存储正确连接到你的项目。
+
+请注意，无论使用哪种部署方法，KV存储的配置都是在Vercel控制台中通过Marketplace完成的，流程是相同的。
 
 ## 方法三：使用Vercel本地开发环境（替代npm run dev）
 
