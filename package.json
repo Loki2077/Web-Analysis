@@ -1,8 +1,7 @@
 {
   "name": "web-analysis",
   "version": "0.1.0",
-  "private": false,
-  "license": "MIT",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@vercel/blob": "^0.27.3",
     "@vercel/kv": "^0.2.3",
     "chart.js": "^4.4.0",
     "date-fns": "^2.30.0",
@@ -22,7 +20,7 @@
     "web-analysis": "file:"
   },
   "devDependencies": {
-    "@types/node": "^20.8.10",
+    "@types/node": "^20.8.9",
     "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
     "@types/uuid": "^9.0.6",

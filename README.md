@@ -1,40 +1,103 @@
-# Web-Analysis
+# Web Analysis - 轻量级网站流量分析工具
 
-一个基于Vercel的开源Web流量分析项目，无需自己的服务器即可部署和使用。
+这是一个基于Next.js和Vercel构建的轻量级网站流量分析工具，无需服务器即可部署和使用。通过简单地在您的网站中添加一段跟踪代码，即可开始收集和分析访问数据。
 
-## 项目特点
+## 主要功能
 
-- 🚀 基于Vercel部署，无需自己的服务器
-- 📊 实时网站访问数据分析
-- 🔒 注重隐私，不使用Cookie
-- 💡 轻量级跟踪脚本，对网站性能影响最小
-- 📱 响应式仪表盘，支持移动端查看
-- 🔌 简单集成，只需添加一行代码到您的网站
+- 🔍 实时流量监控
+- 📊 访问来源分析
+- 👥 用户行为跟踪
+- 📱 设备和浏览器统计
+- 🌐 支持多网站监控
+- ☁️ 基于Vercel部署，无需服务器
 
 ## 技术栈
 
-- Next.js - React框架
-- Vercel - 部署和托管
-- Vercel Blob - 主要数据存储（推荐）
-- Vercel KV - 可选数据存储
-- TailwindCSS - 样式
-- Chart.js - 数据可视化
+- **前端框架**: Next.js 14
+- **UI库**: React 18
+- **样式**: TailwindCSS
+- **图表**: Chart.js
+- **数据存储**: Vercel KV (Redis)
+- **部署**: Vercel
 
 ## 快速开始
 
-1. Fork本仓库
-2. 部署到Vercel
-3. 设置Vercel Blob存储（推荐）或Vercel KV存储
-4. 将跟踪脚本添加到您的网站
-5. 访问您的分析仪表盘
+### 本地开发
 
-## 详细文档
+1. 克隆仓库
 
-详细的设置和使用说明请参见[文档](./docs/README.md)。
+```bash
+git clone https://github.com/yourusername/web-analysis.git
+cd web-analysis
+```
 
-## 贡献
+2. 安装依赖
 
-欢迎提交Pull Request或创建Issue来帮助改进这个项目！
+```bash
+npm install
+```
+
+3. 配置环境变量
+
+复制`.env.local.example`文件为`.env.local`并填入您的Vercel KV配置信息。
+
+4. 启动开发服务器
+
+```bash
+npm run dev
+```
+
+访问 http://localhost:3000 查看应用。
+
+### 部署到Vercel
+
+1. 在Vercel上创建一个新项目
+2. 连接到您的GitHub仓库
+3. 在项目设置中添加环境变量（KV_URL, KV_REST_API_URL, KV_REST_API_TOKEN, KV_REST_API_READ_ONLY_TOKEN）
+4. 部署项目
+
+## 使用方法
+
+### 添加跟踪代码
+
+在您想要监控的网站的`<head>`标签中添加以下代码：
+
+```html
+<script src="https://your-domain.vercel.app/tracker.js" data-website-id="YOUR_WEBSITE_ID"></script>
+```
+
+将`your-domain.vercel.app`替换为您的Vercel部署域名，将`YOUR_WEBSITE_ID`替换为您为该网站指定的唯一标识符。
+
+### 查看分析数据
+
+1. 访问您的Web Analysis部署地址
+2. 在仪表盘中查看实时数据和统计信息
+3. 在网站列表页面查看所有被监控的网站
+
+### 跟踪自定义事件
+
+除了自动跟踪页面访问外，您还可以跟踪自定义事件：
+
+```javascript
+// 在您的网站代码中
+webAnalytics.trackEvent('button_click', 'signup_button');
+```
+
+## 数据存储
+
+所有分析数据存储在Vercel KV（基于Redis）中，具有以下特点：
+
+- 高性能读写
+- 自动过期（访问数据保留30天）
+- 无需维护数据库服务器
+
+## 隐私合规
+
+本工具设计时考虑了隐私保护：
+
+- 不使用cookies（使用localStorage存储访客ID）
+- 不跟踪个人身份信息
+- 符合GDPR基本要求
 
 ## 许可证
 
