@@ -8,7 +8,7 @@
   // 配置项
   const config = {
     // 分析服务器地址，自动检测
-    serverUrl: null,
+    serverUrl: 'http://localhost:3000/',
     
     // 是否自动跟踪页面访问
     autoTrack: true,
