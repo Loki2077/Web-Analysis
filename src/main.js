@@ -42,6 +42,8 @@ const app = createApp(App)
 app.config.globalProperties.goEasy = goEasy
 
 // 初始化追踪数据服务
+// 将goEasy实例传递给追踪服务
+// 注意：即使没有打开主页面，tracker.js也会独立初始化并连接GoEasy
 TrackerDataService.initTrackerService(goEasy)
 
 app.config.globalProperties.$echarts = echarts

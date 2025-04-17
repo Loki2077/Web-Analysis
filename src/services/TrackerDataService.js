@@ -8,60 +8,205 @@ import { reactive } from 'vue';
 // GoEasy将通过CDN动态加载，不需要在这里导入
 import StorageAdapter from './StorageAdapter';
 
+// 刷新间隔（毫秒）
+const REFRESH_INTERVAL = 3000;
+
 // 使用reactive创建响应式状态存储
 const state = reactive({
   domains: [],         // 存储所有监控的域名信息
   onlineUsers: {},     // 按域名存储在线用户 {domainId: [users]}
   userActivities: {},  // 按用户存储活动记录 {userId: [activities]}
-  isConnected: false   // WebSocket连接状态
+  isConnected: false,  // WebSocket连接状态
+  lastRefresh: Date.now() // 最后刷新时间
 });
+
+// 刷新定时器
+let refreshTimer = null;
+
+/**
+ * 启动定时刷新
+ */
+function startRefreshTimer() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+  }
+  
+  console.log(`监控系统: 启动定时刷新，间隔${REFRESH_INTERVAL}毫秒`);
+  refreshTimer = setInterval(async () => {
+    await refreshDomainData();
+  }, REFRESH_INTERVAL);
+}
+
+/**
+ * 停止定时刷新
+ */
+function stopRefreshTimer() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+    console.log('监控系统: 停止定时刷新');
+  }
+}
+
+/**
+ * 刷新域名数据
+ */
+async function refreshDomainData() {
+  try {
+    // 检查存储服务的最后更新时间
+    const storageLastUpdate = StorageAdapter.getLastUpdateTime();
+    
+    // 如果存储的数据比当前状态新，则刷新数据
+    if (storageLastUpdate > state.lastRefresh) {
+      console.log('监控系统: 检测到存储数据更新，刷新域名数据');
+      
+      // 从存储加载最新域名数据
+      const domains = await StorageAdapter.getAllDomains(true); // 强制刷新
+      
+      if (domains && Array.isArray(domains)) {
+        // 更新域名列表，保持现有的在线用户数据
+        domains.forEach(domain => {
+          const existingDomain = state.domains.find(d => d.id === domain.id);
+          if (existingDomain) {
+            // 保留现有的在线用户数量
+            domain.onlineCount = existingDomain.onlineCount || 0;
+          } else {
+            // 初始化新域名的在线用户数组
+            state.onlineUsers[domain.id] = [];
+          }
+        });
+        
+        // 更新状态
+        state.domains = domains;
+        state.lastRefresh = Date.now();
+        console.log(`监控系统: 已刷新${domains.length}个域名数据`);
+      }
+    }
+  } catch (error) {
+    console.error('监控系统: 刷新域名数据错误', error);
+  }
+}
 
 /**
  * 初始化追踪服务
  * @param {Object} goEasy - 从main.js传入的GoEasy实例
  */
 async function initTrackerService(goEasy) {
+  console.log('监控系统: 初始化追踪服务');
+  
+  // 如果没有传入GoEasy实例，尝试自动创建一个
   if (!goEasy) {
-    console.error('监控系统: GoEasy实例未提供');
+    console.log('监控系统: GoEasy实例未提供，尝试自动创建');
+    try {
+      // 检查全局是否已有GoEasy
+      if (typeof GoEasy !== 'undefined') {
+        goEasy = GoEasy.getInstance({
+          host: 'hangzhou.goeasy.io',
+          appkey: 'BC-3c9aebd68555496aa086c46caf78393d',
+          modules: ['pubsub']
+        });
+        
+        // 自动连接
+        goEasy.connect({
+          onSuccess: function() {
+            console.log('监控系统: 自动创建的GoEasy连接成功');
+            // 连接成功后继续初始化
+            continueInitialization(goEasy);
+          },
+          onFailed: function(error) {
+            console.error('监控系统: 自动创建的GoEasy连接失败', error.code, error.content);
+          }
+        });
+        return; // 等待连接回调
+      } else {
+        console.error('监控系统: 无法自动创建GoEasy实例，GoEasy未定义');
+      }
+    } catch (error) {
+      console.error('监控系统: 自动创建GoEasy实例失败', error);
+    }
+  } else {
+    // 如果提供了GoEasy实例，直接继续初始化
+    continueInitialization(goEasy);
+  }
+}
+
+/**
+ * 继续初始化过程（在GoEasy连接后）
+ * @param {Object} goEasy - GoEasy实例
+ */
+async function continueInitialization(goEasy) {
+  if (!goEasy) {
+    console.error('监控系统: GoEasy实例未提供，无法继续初始化');
     return;
   }
   
-  console.log('监控系统: 初始化追踪服务');
   state.isConnected = goEasy.getConnectionStatus() === 'connected';
   
-  // 初始化存储服务（根据环境自动选择本地存储或Blob存储）
+  // 初始化存储服务
   await StorageAdapter.initStorage();
   
   // 从存储加载域名数据
   const storedDomains = await StorageAdapter.getAllDomains();
+  // 从存储加载用户数据
+  const loadedUsers = await StorageAdapter.loadUsers(); // 加载持久化的用户数据
+  const userTimeout = 5 * 60 * 1000; // 5分钟超时
+
   if (storedDomains && storedDomains.length > 0) {
-    console.log(`监控系统: 从${StorageAdapter.isLocalDevelopment ? '本地' : 'Blob'}存储加载了${storedDomains.length}个域名`);
+    console.log(`监控系统: 从JSON文件存储加载了${storedDomains.length}个域名`);
     state.domains = storedDomains;
     
-    // 初始化每个域名的在线用户数组
+    // 初始化并恢复在线用户状态
     storedDomains.forEach(domain => {
-      if (!state.onlineUsers[domain.id]) {
-        state.onlineUsers[domain.id] = [];
-      }
+      state.onlineUsers[domain.id] = []; // 先初始化为空数组
+      const persistedUsers = loadedUsers[domain.id] || [];
+      const now = Date.now();
+      let onlineCount = 0;
+
+      persistedUsers.forEach(user => {
+        // 检查用户是否在超时时间内活跃
+        if (user.lastActivityTimestamp && (now - user.lastActivityTimestamp < userTimeout)) {
+          // 需要补充 OnlineUsers.vue 可能需要的字段，如果持久化数据中没有
+          const restoredUser = {
+            ...user, // 包含 id, sessionId, ip, deviceFingerprint, firstVisit, deviceType, os, browser, lastActivityTimestamp
+            url: user.url || '未知URL (恢复)', // 尝试恢复，否则设为默认
+            referrer: user.referrer || '未知来源 (恢复)',
+            visitTime: user.visitTime || new Date(user.lastActivityTimestamp).toLocaleString(), // 使用最后活动时间近似
+            onlineTime: calculateOnlineTime(new Date(user.lastActivityTimestamp).toLocaleString()), // 基于最后活动时间计算
+            screenResolution: user.screenResolution || '未知',
+            language: user.language || '未知',
+            timezone: user.timezone || '未知',
+            cookieEnabled: user.cookieEnabled !== undefined ? user.cookieEnabled : '未知',
+            webglSupport: user.webglSupport !== undefined ? user.webglSupport : '未知',
+            canvasFingerprint: user.canvasFingerprint || user.sessionId?.substring(0, 8) || '未知'
+          };
+          state.onlineUsers[domain.id].push(restoredUser);
+          onlineCount++;
+        }
+      });
+
+      // 更新域名的在线计数
+      domain.onlineCount = onlineCount;
+      console.log(`监控系统: 域名 ${domain.name} 恢复了 ${onlineCount} 个在线用户`);
     });
   } else {
     console.log('监控系统: 未找到域名数据，请确保已添加监控域名');
     // 添加一个默认的localhost域名用于测试
-    if (StorageAdapter.isLocalDevelopment) {
-      const localhostDomain = {
-        id: Date.now(),
-        name: 'localhost',
-        onlineCount: 0
-      };
-      state.domains.push(localhostDomain);
-      state.onlineUsers[localhostDomain.id] = [];
-      await StorageAdapter.addDomain(localhostDomain);
-      console.log('监控系统: 已添加localhost作为默认测试域名');
-    }
+    const localhostDomain = {
+      id: Date.now(),
+      name: 'localhost',
+      onlineCount: 0
+    };
+    state.domains.push(localhostDomain);
+    state.onlineUsers[localhostDomain.id] = [];
+    await StorageAdapter.addDomain(localhostDomain);
+    console.log('监控系统: 已添加localhost作为默认测试域名');
   }
   
   // 订阅数据频道
   subscribeToDataChannel(goEasy);
+  
+  // 启动定时刷新
+  startRefreshTimer();
 }
 
 
@@ -218,6 +363,8 @@ async function updateDomainData(domainName) {
         console.log(`监控系统: 新域名 ${domainName} 已添加并保存到${StorageAdapter.isLocalDevelopment ? '本地' : 'Blob'}存储`);
         // 立即保存所有域名数据，确保数据一致性
         await saveStateToStorage();
+        // 更新最后刷新时间
+        state.lastRefresh = Date.now();
       } else {
         console.error(`监控系统: 新域名 ${domainName} 保存失败`);
       }
@@ -225,8 +372,19 @@ async function updateDomainData(domainName) {
     
     // 更新在线用户数量 - 确保与实际用户列表同步
     if (domain && state.onlineUsers[domain.id]) {
+      const oldCount = domain.onlineCount;
       domain.onlineCount = state.onlineUsers[domain.id].length || 0;
-      console.log(`监控系统: 域名 ${domainName} 在线用户数已更新为 ${domain.onlineCount}`);
+      
+      // 如果在线用户数量发生变化，更新存储
+      if (oldCount !== domain.onlineCount) {
+        console.log(`监控系统: 域名 ${domainName} 在线用户数已更新为 ${domain.onlineCount}`);
+        
+        // 如果支持直接更新域名，则使用更新方法
+        if (StorageAdapter.updateDomain) {
+          await StorageAdapter.updateDomain(domain);
+          state.lastRefresh = Date.now();
+        }
+      }
     }
   } catch (error) {
     console.error('监控系统: 更新域名数据错误', error);
@@ -286,10 +444,11 @@ function updateUserData(domainName, data) {
         u.ip === data.ip && u.sessionId.substring(0, 8) === data.sessionId.substring(0, 8)
       );
     }
-    
+
+    const nowTimestamp = Date.now(); // 获取当前时间戳
+
     if (userIndex === -1) {
       // 添加新用户
-      // 生成更可靠的设备指纹（如果未提供）
       const generatedFingerprint = data.deviceFingerprint || 
         generateDeviceFingerprint(data.userAgent, data.screenResolution, data.language, data.ip, data.canvasFingerprint);
       
@@ -311,7 +470,8 @@ function updateUserData(domainName, data) {
         cookieEnabled: navigator.cookieEnabled,
         webglSupport: detectWebGLSupport(),
         canvasFingerprint: data.canvasFingerprint || data.sessionId.substring(0, 8),
-        deviceFingerprint: generatedFingerprint // 更可靠的设备指纹
+        deviceFingerprint: generatedFingerprint,
+        lastActivityTimestamp: nowTimestamp // 添加最后活动时间戳
       };
       
       state.onlineUsers[domain.id].push(newUser);
@@ -319,9 +479,10 @@ function updateUserData(domainName, data) {
     } else {
       // 更新现有用户
       const user = state.onlineUsers[domain.id][userIndex];
-      user.ip = data.ip || user.ip; // 确保IP地址被更新
+      user.ip = data.ip || user.ip;
       user.url = data.url ? decodeURIComponent(data.url) : user.url;
       user.onlineTime = calculateOnlineTime(user.visitTime);
+      user.lastActivityTimestamp = nowTimestamp; // 更新最后活动时间戳
       
       // 更新设备指纹（如果有新的）
       if (data.deviceFingerprint && data.deviceFingerprint !== '未生成') {
@@ -575,13 +736,17 @@ async function saveStateToStorage() {
   try {
     console.log('监控系统: 开始保存状态到存储');
     
-    // 保存域名数据 - 使用StorageAdapter适配器而不是直接调用BlobStorageService
+    // 同步一次在线计数，确保保存的是最新的
+    syncDomainOnlineCount();
+
+    // 保存域名数据
     await StorageAdapter.saveDomains(state.domains);
     
-    // 保存用户数据（仅保存必要信息，减少存储量）
+    // 保存用户数据（包含最后活动时间）
     const usersToSave = {};
     Object.keys(state.onlineUsers).forEach(domainId => {
       usersToSave[domainId] = state.onlineUsers[domainId].map(user => ({
+        // 保存必要信息以供恢复
         id: user.id,
         sessionId: user.sessionId,
         ip: user.ip,
@@ -589,12 +754,24 @@ async function saveStateToStorage() {
         firstVisit: user.firstVisit,
         deviceType: user.deviceType,
         os: user.os,
-        browser: user.browser
+        browser: user.browser,
+        lastActivityTimestamp: user.lastActivityTimestamp, // 保存最后活动时间戳
+        // 可以选择性保存更多信息，如果恢复时需要
+        url: user.url, 
+        referrer: user.referrer,
+        visitTime: user.visitTime,
+        screenResolution: user.screenResolution,
+        language: user.language,
+        timezone: user.timezone,
+        cookieEnabled: user.cookieEnabled,
+        webglSupport: user.webglSupport,
+        canvasFingerprint: user.canvasFingerprint
       }));
     });
     
     await StorageAdapter.saveUsers(usersToSave);
-    console.log(`监控系统: 状态保存到${StorageAdapter.isLocalDevelopment ? '本地' : 'Blob'}存储完成`);
+    // 使用 StorageAdapter 判断存储类型
+    console.log(`监控系统: 状态保存到 ${StorageAdapter.isLocalDevelopment ? '本地' : 'Blob'} 存储完成`); 
     
     return true;
   } catch (error) {
@@ -639,5 +816,8 @@ export default {
   getOnlineUsersByDomain,
   getUserActivities,
   getAllActivities,
-  saveStateToStorage
+  saveStateToStorage,
+  refreshDomainData,
+  startRefreshTimer,
+  stopRefreshTimer
 };

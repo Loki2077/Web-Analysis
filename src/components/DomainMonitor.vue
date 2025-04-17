@@ -19,7 +19,8 @@ export default {
   name: 'DomainMonitor',
   data() {
     return {
-      trackerService: TrackerDataService
+      trackerService: TrackerDataService,
+      refreshInterval: null
     }
   },
   computed: {
@@ -31,6 +32,9 @@ export default {
     // 初始化追踪数据服务
     this.trackerService.initTrackerService();
     
+    // 启动定时刷新
+    this.trackerService.startRefreshTimer();
+    
     // 页面加载时，自动选择第一个域名
     this.$nextTick(() => {
       if (this.domains.length > 0) {
@@ -38,11 +42,28 @@ export default {
         console.log('监控系统: 自动选择第一个域名', this.domains[0].name);
       }
     });
+    
+    // 添加手动刷新机制
+    this.refreshInterval = setInterval(() => {
+      this.refreshDomains();
+    }, 5000); // 每5秒刷新一次
   },
   methods: {
     selectDomain(domain) {
       this.$emit('domain-selected', domain);
+    },
+    refreshDomains() {
+      // 手动触发域名数据刷新
+      this.trackerService.refreshDomainData();
     }
+  },
+  beforeUnmount() {
+    // 组件卸载时清除定时器
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+    // 停止定时刷新
+    this.trackerService.stopRefreshTimer();
   }
 }
 </script>
