@@ -10,6 +10,29 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 /**
+ * 设置CORS响应头
+ * @param {NextResponse} response - NextResponse对象
+ * @returns {NextResponse} - 设置了CORS头的响应对象
+ */
+function setCorsHeaders(response: NextResponse): NextResponse {
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  response.headers.set('Access-Control-Max-Age', '86400');
+  return response;
+}
+
+/**
+ * @method OPTIONS
+ * @description 处理CORS预检请求
+ * @returns {Promise<NextResponse>} - 返回CORS预检响应
+ */
+export async function OPTIONS() {
+  const response = new NextResponse(null, { status: 200 });
+  return setCorsHeaders(response);
+}
+
+/**
  * @method POST
  * @description 接收来自监控脚本的数据。
  * @param {Request} request - 客户端发送的请求对象，包含脚本发送的数据。
@@ -326,10 +349,12 @@ export async function POST(request: Request) {
     });
   
     // 返回一个成功响应
-    return NextResponse.json({ message: 'Data received successfully.' }, { status: 200 });
+    const successResponse = NextResponse.json({ message: 'Data received successfully.' }, { status: 200 });
+    return setCorsHeaders(successResponse);
 
   } catch (error: any) {
     console.error('Error receiving data:', error);
-    return NextResponse.json({ error: 'Failed to receive data.', details: error.message }, { status: 500 });
+    const errorResponse = NextResponse.json({ error: 'Failed to receive data.', details: error.message }, { status: 500 });
+    return setCorsHeaders(errorResponse);
   }
 }
