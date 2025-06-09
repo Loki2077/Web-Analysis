@@ -12,12 +12,33 @@ dayjs.extend(timezone);
 /**
  * 设置CORS响应头
  * @param {NextResponse} response - NextResponse对象
+ * @param {Request} request - 请求对象，用于获取Origin头
  * @returns {NextResponse} - 设置了CORS头的响应对象
  */
-function setCorsHeaders(response: NextResponse): NextResponse {
-  response.headers.set('Access-Control-Allow-Origin', '*');
+function setCorsHeaders(response: NextResponse, request?: Request): NextResponse {
+  // 获取请求的Origin头
+  const origin = request?.headers.get('origin');
+  
+  // 允许的域名列表
+  const allowedOrigins = [
+    'https://ddns.arol.top',
+    'https://webanalysis.arol.top',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001'
+  ];
+  
+  // 如果请求的Origin在允许列表中，则设置为该Origin，否则设置为第一个允许的Origin
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+  } else {
+    response.headers.set('Access-Control-Allow-Origin', allowedOrigins[0]);
+  }
+  
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
   response.headers.set('Access-Control-Max-Age', '86400');
   return response;
 }
@@ -25,11 +46,12 @@ function setCorsHeaders(response: NextResponse): NextResponse {
 /**
  * @method OPTIONS
  * @description 处理CORS预检请求
+ * @param {Request} request - 请求对象
  * @returns {Promise<NextResponse>} - 返回CORS预检响应
  */
-export async function OPTIONS() {
+export async function OPTIONS(request: Request) {
   const response = new NextResponse(null, { status: 200 });
-  return setCorsHeaders(response);
+  return setCorsHeaders(response, request);
 }
 
 /**
@@ -350,11 +372,11 @@ export async function POST(request: Request) {
   
     // 返回一个成功响应
     const successResponse = NextResponse.json({ message: 'Data received successfully.' }, { status: 200 });
-    return setCorsHeaders(successResponse);
+    return setCorsHeaders(successResponse, request);
 
   } catch (error: any) {
     console.error('Error receiving data:', error);
     const errorResponse = NextResponse.json({ error: 'Failed to receive data.', details: error.message }, { status: 500 });
-    return setCorsHeaders(errorResponse);
+    return setCorsHeaders(errorResponse, request);
   }
 }
