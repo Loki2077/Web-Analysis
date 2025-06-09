@@ -21,7 +21,7 @@ interface DomainListProps {
   domainOnlineUserCounts: Map<string, number>;
   // 如果 DomainList 仍然需要原始 domainList 和 userList，保留这些 props
   domainList: DomainItem[];
-  // 移除未使用的 userList 类型定义
+  userList: any; // 添加 userList 类型定义
   eventList: EventItem[];
 }
 
@@ -31,7 +31,8 @@ const DomainList: React.FC<DomainListProps> = ({
   domainEventCounts, // 接收事件总数
   domainOnlineUserCounts, // 接收在线用户数
   domainList, // 保留原始 domainList
-  // 移除未使用的 userList 参数
+  userList, // 添加 userList 参数
+  eventList, // 添加 eventList 参数
 }) => {
   return (
     <div style={{ flexGrow: 1, overflow: "hidden" }}>

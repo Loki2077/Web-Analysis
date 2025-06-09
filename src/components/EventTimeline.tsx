@@ -31,7 +31,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
   }, [events]); // 当 events 状态改变时重新计算排序
 
   // Helper function to render event details based on typeData
-  const renderEventDetails = (type: string, typeData: any): JSX.Element => {
+  const renderEventDetails = (type: string, typeData: any): React.ReactElement => {
     if (!typeData) {
       return <div>N/A</div>;
     }
@@ -45,7 +45,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
             {typeData.pageUrl && <div style={{ marginBottom: '5px' }}><strong>Page URL:</strong> <a href={typeData.pageUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>{typeData.pageUrl}</a></div>}
             {typeData.screenResolution && <div><strong>Screen Resolution:</strong> {typeData.screenResolution}</div>}
             {/* Add other 'view' specific details here with similar structure */}
-          </div> as JSX.Element // Explicitly cast for clarity
+          </div>
         );
       case 'click':
         return (
@@ -55,12 +55,12 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
             {typeData.clickedContent && <div style={{ marginBottom: '5px' }}><strong>Clicked Content:</strong> {typeData.clickedContent}</div>}
             {typeData.page && <div><strong>Page:</strong> {typeData.page}</div>}
             {/* Add other 'click' specific details here with similar structure */}
-          </div> as JSX.Element // Explicitly cast for clarity
+          </div>
         );
       case 'heartbeat':
         return (
           // Simple display for heartbeat event
-          <div style={{ fontSize: '0.9em', color: '#555' }}>Heartbeat event.</div> as JSX.Element // Explicitly cast for clarity
+          <div style={{ fontSize: '0.9em', color: '#555' }}>Heartbeat event.</div>
         );
       case 'console': // Example for console events
         return (
@@ -68,7 +68,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
             {typeData.message && <div><strong>Message:</strong> {typeData.message}</div>}
             {typeData.level && <div><strong>Level:</strong> {typeData.level}</div>}
             {/* Add other console specific details */}
-          </div> as JSX.Element // Explicitly cast for clarity
+          </div>
         );
       // Add more cases for other event types as needed
       default:
@@ -81,7 +81,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
 
   // Helper function to get icon based on event type
   // Added background and padding to make icons more prominent
-  const getEventTypeIcon = (type: string): JSX.Element | null => {
+  const getEventTypeIcon = (type: string): React.ReactElement | null => {
     switch (type.toLowerCase()) { // Use lower case for case-insensitive comparison
       case 'view':
         return <div style={{ backgroundColor: '#e9f5ff', borderRadius: '4px', padding: '3px', display: 'flex', alignItems: 'center' }}><FaEye size={14} style={{ color: '#007bff' }} /></div>; // Blue eye icon for view

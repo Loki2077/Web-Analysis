@@ -1,16 +1,17 @@
 // src/utils/goeasy.ts
-import GoEasy from 'goeasy';
+// import GoEasy from 'goeasy';
+const GoEasy = require('goeasy');
 
 // 定义一个变量来存储 GoEasy 实例
-let goEasyInstance: GoEasy | null = null;
+let goEasyInstance: any | null = null;
 
 /**
  * @method getGoEasyInstance
  * @description 获取 GoEasy 客户端实例。该实例只在客户端环境下初始化和可用，并建立连接。
- * @returns {GoEasy} GoEasy 客户端实例。
+ * @returns {any} GoEasy 客户端实例。
  * @throws {Error} 如果 GoEasy 相关的环境变量未设置，或者在服务端环境下调用此函数。
  */
-export function getGoEasyInstance(): GoEasy {
+export function getGoEasyInstance(): any {
   // 检查是否在客户端环境
   if (typeof window !== 'undefined') {
     // 如果实例不存在，则创建新的实例
@@ -36,7 +37,7 @@ export function getGoEasyInstance(): GoEasy {
         onSuccess: function () {
           console.log("GoEasy connect successfully.")
         },
-        onFailed: function (error) {
+        onFailed: function (error: any) {
           console.error("Failed to connect GoEasy, code:" + error.code + ",error:" + error.content);
         }
       });

@@ -167,16 +167,18 @@ const UserFingerprintPanel: React.FC<UserFingerprintPanelProps> = ({ user, detai
                                              transition: 'all 0.2s ease'
                                          }}
                                          onMouseEnter={(e) => {
-                                             e.target.style.backgroundColor = '#ffb3d1';
-                                             e.target.style.color = 'white';
-                                             e.target.style.transform = 'translateY(-1px)';
-                                             e.target.style.boxShadow = '0 4px 12px rgba(255, 179, 209, 0.3)';
+                                             const target = e.target as HTMLElement;
+                                             target.style.backgroundColor = '#ffb3d1';
+                                             target.style.color = 'white';
+                                             target.style.transform = 'translateY(-1px)';
+                                             target.style.boxShadow = '0 4px 12px rgba(255, 179, 209, 0.3)';
                                          }}
                                          onMouseLeave={(e) => {
-                                             e.target.style.backgroundColor = 'transparent';
-                                             e.target.style.color = '#ffb3d1';
-                                             e.target.style.transform = 'translateY(0)';
-                                             e.target.style.boxShadow = '0 2px 8px rgba(255, 204, 224, 0.2)';
+                                             const target = e.target as HTMLElement;
+                                             target.style.backgroundColor = 'transparent';
+                                             target.style.color = '#ffb3d1';
+                                             target.style.transform = 'translateY(0)';
+                                             target.style.boxShadow = '0 2px 8px rgba(255, 204, 224, 0.2)';
                                          }}
                                     >
                                         💾 保存
@@ -200,16 +202,18 @@ const UserFingerprintPanel: React.FC<UserFingerprintPanelProps> = ({ user, detai
                                              transition: 'all 0.2s ease'
                                          }}
                                          onMouseEnter={(e) => {
-                                             e.target.style.backgroundColor = '#b8b8b8';
-                                             e.target.style.color = 'white';
-                                             e.target.style.transform = 'translateY(-1px)';
-                                             e.target.style.boxShadow = '0 4px 12px rgba(184, 184, 184, 0.3)';
+                                             const target = e.target as HTMLElement;
+                                             target.style.backgroundColor = '#b8b8b8';
+                                             target.style.color = 'white';
+                                             target.style.transform = 'translateY(-1px)';
+                                             target.style.boxShadow = '0 4px 12px rgba(184, 184, 184, 0.3)';
                                          }}
                                          onMouseLeave={(e) => {
-                                             e.target.style.backgroundColor = 'transparent';
-                                             e.target.style.color = '#b8b8b8';
-                                             e.target.style.transform = 'translateY(0)';
-                                             e.target.style.boxShadow = '0 2px 8px rgba(184, 184, 184, 0.2)';
+                                             const target = e.target as HTMLElement;
+                                             target.style.backgroundColor = 'transparent';
+                                             target.style.color = '#b8b8b8';
+                                             target.style.transform = 'translateY(0)';
+                                             target.style.boxShadow = '0 2px 8px rgba(184, 184, 184, 0.2)';
                                          }}
                                     >
                                         ❌ 取消
@@ -233,12 +237,14 @@ const UserFingerprintPanel: React.FC<UserFingerprintPanelProps> = ({ user, detai
                                               }}
                                               title="✏️ 编辑备注"
                                               onMouseEnter={(e) => {
-                                                  e.target.style.backgroundColor = 'rgba(255, 179, 209, 0.1)';
-                                                  e.target.style.transform = 'scale(1.1)';
+                                                  const target = e.target as HTMLElement;
+                                                  target.style.backgroundColor = 'rgba(255, 179, 209, 0.1)';
+                                                  target.style.transform = 'scale(1.1)';
                                               }}
                                               onMouseLeave={(e) => {
-                                                  e.target.style.backgroundColor = 'transparent';
-                                                  e.target.style.transform = 'scale(1)';
+                                                  const target = e.target as HTMLElement;
+                                                  target.style.backgroundColor = 'transparent';
+                                                  target.style.transform = 'scale(1)';
                                               }}
                                              onClick={() => {
                                                  setIsEditingNotes(true);

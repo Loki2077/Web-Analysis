@@ -3,7 +3,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 
-import GoEasy from 'goeasy'; // 导入 GoEasy 类型定义
+// import GoEasy from 'goeasy'; // 导入 GoEasy 类型定义
+const GoEasy = require('goeasy'); // 使用 require 导入 GoEasy
 import { getGoEasyInstance } from '@/utils/goeasy'; // 导入获取 GoEasy 客户端实例的函数
 
 // 开发模式 获取（form .evn）
@@ -84,7 +85,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const channelName = process.env.NEXT_PUBLIC_GOEASY_CHANNEL as string;
 
     useEffect(() => {
-        let goEasy: GoEasy | undefined; // 声明 goEasy 变量，类型为 GoEasy 或 undefined
+        let goEasy: any | undefined; // 声明 goEasy 变量，类型为 any 或 undefined
         // 获取初始数据 (domain, user, event, detail) 逻辑 ...
         // 在这些 fetch 请求的 .then 回调中，确保调用 setDomainList, setUserList, setEventList, setDetailList
         fetch(`/api/mongodb?action=fetchData&dbName=${DATABASE_NAME}&collectionName=domain`)
@@ -184,7 +185,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
             // 订阅频道，使用 pubsub.subscribe
             goEasy.pubsub.subscribe({
                 channel: channelName,
-                onMessage: function (message) {
+                onMessage: function (message: any) {
                     if (model === 'dev') {
                         console.log("[DataProvider] 接收到 GoEasy 消息 - Channel:", message.channel, "内容:", message.content);
                     }
@@ -353,7 +354,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
                         console.log('[DataProvider] GoEasy 频道订阅成功:', channelName);
                     }
                 },
-                onFailed: function (error) {
+                onFailed: function (error: any) {
                     if (model === 'dev') {
                         console.error('[DataProvider] GoEasy 频道订阅失败:', error);
                     }
@@ -380,7 +381,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
                         }
 
                     },
-                    onFailed: function (error) {
+                    onFailed: function (error: any) {
                         if (model === 'dev') {
                             console.error('[DataProvider] GoEasy 频道取消订阅失败:', error);
                         }

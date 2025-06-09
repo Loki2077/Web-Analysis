@@ -14,7 +14,7 @@ import { useEffect } from "react"; // 导入 useEffect
 import { UserItem } from "@/context/DataContext";
 import { FaUsers, FaGlobe, FaFingerprint, FaHistory } from "react-icons/fa"; // Import a clock icon from react-icons/fa
 // Removed the import of 'ip' prop as it will be fetched on the client
-const HomePage: React.FC<{ ip: string }> = () => {
+const HomePage: React.FC = () => {
     // 从 DataContext 获取数据
     // 从 Context 获取 IP 地址
     // 新增本地状态来存储要显示的 IP

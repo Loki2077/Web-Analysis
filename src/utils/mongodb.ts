@@ -58,8 +58,7 @@ async function listDatabases(): Promise<string[]> {
  * @returns 集合名称字符串数组。
  */
 async function listCollections(dbName: string): Promise<string[]> {
-  const client = await connectToMongoDB(); // Get the connected client
-  const db = client.db(dbName);
+  const db = await connectToMongoDB(dbName); // Get the connected database
   const collectionsList = await db.listCollections().toArray();
   return collectionsList.map(collection => collection.name);
 }
