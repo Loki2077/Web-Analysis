@@ -1,0 +1,131 @@
+/* src/app/globals.css */
+@import "tailwindcss";
+
+:root {
+  --background: #f7ddd0; /* Soft pastel pink background */
+  --foreground: #5c4a5c;
+  --panel-background: #ffffff;
+  --page-background: #f7ddd0; /* Lighter pastel pink for page area */
+  --border-color: #ccc;
+  --panel-title-color: #333;
+  --panel-title-border-color: #eee;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #f4e8ee; /* Lighter text for dark mode */
+  }
+}
+
+html, body {
+  height: 100%; /* 确保 html 和 body 占满视口高度 */
+  margin: 0; /* 移除默认的外边距 */
+  padding: 0; /* 移除默认的内边距 */
+  overflow-y: auto; /* 当内容溢出时显示垂直滚动条 */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif; /* Prioritize rounded fonts */
+  /* 移除之前的居中样式，以便我们自己控制布局 */
+  display: block;
+  justify-content: initial;
+  align-items: initial;
+  height: initial;
+  min-height: 100vh; /* 设置最小高度为视口高度 */
+}
+
+
+/* 页面容器 */
+.page-container {
+  padding: 20px;
+  background-color: var(--page-background);
+  display: flex; /* 使用 flexbox 布局 */
+  flex-direction: column; /* 垂直方向布局 */
+  height: 100vh; /* 让页面容器占满视口高度 */
+}
+
+/* 主布局容器 */
+.main-layout {
+  display: flex;
+  gap: 20px;
+  flex-grow: 1; /* 让主布局容器占满剩余垂直空间 */
+  overflow: hidden; /* 隐藏溢出内容，结合子元素的滚动 */
+  height: 100%; /* 让 main-layout 占满 page-container 的高度 */
+}
+
+/* 左侧面板容器 */
+.left-panels-container {
+  display: flex; 
+  flex-direction: column; 
+  width: 50vh;
+  gap: 20px; 
+  flex: 1; 
+  height: 100%; /* Vertical layout for panels in the left column, taking equal height */
+}
+
+.panel-domain{
+  height: 50vh;
+}
+
+
+/* 页面标题样式 */
+.page-container h1 {
+    margin-bottom: 20px; /* 标题下边距 */
+}
+
+
+/* 列样式 */
+.left-column { flex: 1; display: flex; flex-direction: column; height: 100%; /* Left column: flex-grow 1, vertical flex for inner content, full height */ }
+.middle-column { flex: 2; display: flex; flex-direction: column; } /* Middle column: flex-grow 2, vertical flex for inner content */
+.right-column { flex: 2; display: flex; flex-direction: column; } /* Right column: flex-grow 2, vertical flex for inner content */
+
+/* Make panels within middle and right columns grow to fill height */
+.middle-column > .panel,
+.right-column > .panel {
+  flex-grow: 1;
+}
+
+/* Remove old grid styles */
+.grid-layout {
+  display: none;
+}
+
+
+/* 面板样式 */
+.panel {
+    border: none; /* Remove default border */
+    border-radius: 16px;
+    padding: 20px;
+    background-color: var(--panel-background);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft box shadow */
+    display: flex; /* 使用 flexbox 布局面板内容 */
+    flex-direction: column; /* 面板内容垂直布局 */
+    overflow: auto; /* 使用 auto 允许内容溢出时滚动 */
+}
+
+/* 针对小屏幕设备的样式 */
+@media (max-width: 768px) {
+  .main-layout { flex-direction: column; }
+}
+/* 面板标题样式 */
+.panel h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    color: #e57373; /* Pastel red for panel titles */
+    border-bottom: 1px solid var(--panel-title-border-color);
+    padding-bottom: 10px;
+    flex-shrink: 0; /* 防止标题被压缩 */
+}
+
+/* 添加更多样式来匹配图片设计 */
