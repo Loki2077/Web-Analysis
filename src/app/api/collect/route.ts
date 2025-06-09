@@ -16,24 +16,13 @@ dayjs.extend(timezone);
  * @returns {NextResponse} - 设置了CORS头的响应对象
  */
 function setCorsHeaders(response: NextResponse, request?: Request): NextResponse {
-  // 获取请求的Origin头
+  // 获取请求的Origin头，如果存在则使用该Origin，否则允许所有
   const origin = request?.headers.get('origin');
   
-  // 允许的域名列表
-  const allowedOrigins = [
-    'https://ddns.arol.top',
-    'https://webanalysis.arol.top',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
-  ];
-  
-  // 如果请求的Origin在允许列表中，则设置为该Origin，否则设置为第一个允许的Origin
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin) {
     response.headers.set('Access-Control-Allow-Origin', origin);
   } else {
-    response.headers.set('Access-Control-Allow-Origin', allowedOrigins[0]);
+    response.headers.set('Access-Control-Allow-Origin', '*');
   }
   
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
