@@ -348,7 +348,7 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <script src="/tracker.js" async />
+            <script src="/qiqi.js" async />
         </div>
     );
 };
