@@ -32,7 +32,7 @@ export default function RootLayout({
   // 移除未使用的 IP 获取逻辑
 
   return (
-    <html lang="en">
+    <html >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

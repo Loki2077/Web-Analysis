@@ -1,9 +1,0 @@
-{
-  "/api/collect/route": "/api/collect",
-  "/api/mongodb/route": "/api/mongodb",
-  "/api/update-notes/route": "/api/update-notes",
-  "/api/websocket/route": "/api/websocket",
-  "/favicon.ico/route": "/favicon.ico",
-  "/_not-found/page": "/_not-found",
-  "/page": "/"
-}

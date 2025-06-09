@@ -4,8 +4,10 @@ const nextConfig: NextConfig = {
   experimental: {
     
   },
-  // 配置输出目录为dist以适配Vercel部署
-  distDir: 'dist'
+  // Vercel无服务器部署配置
+  images: {
+    unoptimized: true
+  }
 };
 
 export default nextConfig;
