@@ -9,6 +9,7 @@ import UserList from "@/components/UserList";
 // 移除未使用的 useIp 导入
 import UserFingerprintPanel from "@/components/UserFingerprintPanel";
 import EventTimeline from "@/components/EventTimeline";
+import DynamicTitle from "@/components/DynamicTitle"; // 导入动态标题组件
 import { useEffect } from "react"; // 导入 useEffect
 // 导入所需的数据类型
 import { UserItem } from "@/context/DataContext";
@@ -30,6 +31,9 @@ const HomePage: React.FC = () => {
     );
     // State 用于管理选中的用户对象
     const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
+    
+    // State 用于管理当前激活的标签页
+    const [activeTab, setActiveTab] = useState<string>('domains');
 
     // State 用于存储每个域名的事件总数
     const [domainEventCounts, setDomainEventCounts] = useState<
@@ -185,6 +189,12 @@ const HomePage: React.FC = () => {
     return (
         // 页面整体容器，应用页面背景色和内边距样式
         <div className="page-container">
+            {/* 动态标题组件 */}
+            <DynamicTitle 
+                selectedDomain={selectedDomain} 
+                selectedFingerprint={selectedFingerprint} 
+                activeTab={activeTab} 
+            />
             {/* Header */}
             <div
                 style={{
@@ -223,7 +233,15 @@ const HomePage: React.FC = () => {
                         <div className="panel panel-domain">
                             {/* 面板标题 */}
                             {/* <h3>MONITORED DOMAINS</h3> */}
-                            <h3 style={{ display: "flex", alignItems: "center" }}>
+                            <h3 
+                                style={{ 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    cursor: "pointer",
+                                    color: activeTab === 'domains' ? 'var(--primary-color)' : 'var(--text-color)'
+                                }}
+                                onClick={() => setActiveTab('domains')}
+                            >
                                 <FaGlobe style={{ marginRight: "8px" }} />
                                 Domains
                             </h3>
@@ -243,7 +261,20 @@ const HomePage: React.FC = () => {
                         <div className="panel">
                             {/* 面板标题 */}
                             {/* <h3>ONLINE USERS</h3> */}
-                            <h3 style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', fontSize: '1.2em', borderBottom: '1px solid var(--panel-title-border-color)', paddingBottom: '10px', flexShrink: 0 }}>
+                            <h3 
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    marginBottom: '15px', 
+                                    fontSize: '1.2em', 
+                                    borderBottom: '1px solid var(--panel-title-border-color)', 
+                                    paddingBottom: '10px', 
+                                    flexShrink: 0,
+                                    cursor: 'pointer',
+                                    color: activeTab === 'users' ? 'var(--primary-color)' : 'var(--text-color)'
+                                }}
+                                onClick={() => setActiveTab('users')}
+                            >
                                 <FaUsers style={{ marginRight: '10px' }} />
                                 Users
                             </h3>
@@ -263,7 +294,15 @@ const HomePage: React.FC = () => {
                     <div className="panel">
                         {/* 面板标题 */}
                         {/* <h3>USER FINGERPRINT</h3> */}
-                        <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                        <h3 
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                color: activeTab === 'fingerprint' ? 'var(--primary-color)' : 'var(--text-color)'
+                            }}
+                            onClick={() => setActiveTab('fingerprint')}
+                        >
                             <FaFingerprint style={{ marginRight: '8px' }} /> {/* Icon with right margin */}
                             User Fingerprint
                         </h3>
@@ -284,8 +323,15 @@ const HomePage: React.FC = () => {
                     <div className="panel" style={{ maxWidth: "800px" }}>
                         {/* 面板标题 */}
                         {/* <h3>EVENT TIMELINE</h3> */}
-                        <h3 style={{ display: "flex", alignItems: "center" }}>
-                            {" "}
+                        <h3 
+                            style={{ 
+                                display: "flex", 
+                                alignItems: "center",
+                                cursor: 'pointer',
+                                color: activeTab === 'events' ? 'var(--primary-color)' : 'var(--text-color)'
+                            }}
+                            onClick={() => setActiveTab('events')}
+                        >
                             <FaHistory style={{ marginRight: "10px" }} />
                             Event Timeline
                         </h3>
