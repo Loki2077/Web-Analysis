@@ -1,0 +1,9 @@
+{
+  "/api/collect/route": "app/api/collect/route.js",
+  "/api/mongodb/route": "app/api/mongodb/route.js",
+  "/api/update-notes/route": "app/api/update-notes/route.js",
+  "/api/websocket/route": "app/api/websocket/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js"
+}
